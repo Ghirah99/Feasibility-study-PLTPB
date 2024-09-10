@@ -1,4 +1,6 @@
 % Geothermal Power Plant Model
+%add Folder Fucntion
+addpath 'Function Economy'\
 
 % Parameters
 mass_flow_rate = 50; % kg/s, mass flow rate of geothermal fluid
