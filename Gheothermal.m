@@ -3,26 +3,46 @@ clear all
 % Geothermal Power Plant Model
 %add Folder Fucntion
 addpath 'Function Economy'\
+%% Data Baru
+% Data sumur panas bumi (contoh data)
+T_fluid_in = 250; % Suhu fluida masuk (°C)
+T_fluid_out = 120; % Suhu fluida keluar (°C)
+P_fluid = 20; % Tekanan fluida (bar)
+m_dot = 100; % Laju aliran massa fluida (kg/s)
 
-% Parameters
-mass_flow_rate = 50; % kg/s, mass flow rate of geothermal fluid
-specific_heat_capacity = 4200; % J/kg·K, specific heat capacity of geothermal fluid
-temperature_drop = 50; % K, temperature drop of the geothermal fluid
-turbine_efficiency = 0.85; % efficiency of the turbine
-generator_efficiency = 0.95; % efficiency of the generator
+% Konstanta
+cp = 4.18; % Panas jenis air (kJ/kg°C), asumsi air/saturasi
+efficiency = 0.15; % Efisiensi pembangkit (%)
 
-% Heat Extracted
-Q_in = mass_flow_rate * specific_heat_capacity * temperature_drop;
+% Perhitungan daya termal
+Q_dot = m_dot * cp * (T_fluid_in - T_fluid_out); % kW
 
-% Power Produced by Turbine
-W_turbine = turbine_efficiency * Q_in;
+% Perhitungan daya listrik (setelah efisiensi)
+P_electric = Q_dot * efficiency; % kW
 
-% Electrical Power Output
-W_electrical = generator_efficiency * W_turbine;
+% Perhitungan energi listrik (kWh) dalam waktu tertentu
+time_hours = 8760; % Waktu operasi (jam)
+E_electric = P_electric * time_hours; % kWh
 
-% Overall Efficiency
-overall_efficiency = W_electrical / Q_in;
+%% Parameters
+% mass_flow_rate = 50; % kg/s, mass flow rate of geothermal fluid
+% specific_heat_capacity = 4200; % J/kg·K, specific heat capacity of geothermal fluid
+% temperature_drop = 50; % K, temperature drop of the geothermal fluid
+% turbine_efficiency = 0.85; % efficiency of the turbine
+% generator_efficiency = 0.95; % efficiency of the generator
 % 
+% % Heat Extracted
+% Q_in = mass_flow_rate * specific_heat_capacity * temperature_drop;
+% 
+% % Power Produced by Turbine
+% W_turbine = turbine_efficiency * Q_in;
+% 
+% % Electrical Power Output
+% W_electrical = generator_efficiency * W_turbine;
+% 
+% % Overall Efficiency
+% overall_efficiency = W_electrical / Q_in;
+% % 
 % % Display Results
 % fprintf('Heat Extracted (Q_in): %.2f J\n', Q_in);
 % fprintf('Power Produced by Turbine (W_turbine): %.2f J\n', W_turbine);
@@ -36,25 +56,36 @@ overall_efficiency = W_electrical / Q_in;
 % fprintf('Mass Balance: %.2f kg/s\n', mass_balance);
 % fprintf('Energy Balance (Q_loss): %.2f J\n', energy_balance);
 
+%% Data Economy 
+
 cashFlows = [124, 124, 109, 124, 124, 109, 124, 124, 109, 374];
 discountRate = 0.1;
 InvestasiAwal = 750;
 Net = NPV(cashFlows, discountRate, InvestasiAwal); % Net Present Value
-
-
 PIR = Net/InvestasiAwal;% Profitability Index Ratio (PIR)
-
 internal = irr(cashFlows) ; % Internal Rate of return (IRR)
+Tarif_Kwh_Pembangkit = 800 ;
+Benefit = Tarif_Kwh_Pembangkit * E_electric;
+
+
+
 
  disp(['-------- Result Calculation ', 'Gheothermal Power Plant' ,' With Economic Feasibility Analysis', ' -------------']);
-    display(['Heat Extracted             = ',num2str(Q_in), ' J']);
-    display(['Power Produced by Turbine  = ',num2str(W_turbine) ,' J'       ]);
-    display(['Electrical Power Output    = ',num2str(W_electrical)                     ]);
-    display(['Overall Efficiency         = ',num2str(overall_efficiency * 100),' %' ]);
-    display(['Mass Balance               = ',num2str(mass_flow_rate) ,' Kg/s'  ]);
-    display(['Energy Balance             = ',num2str(Q_in - W_electrical),' J']);
+    display(['Heat Extracted             = ',num2str(Q_dot), ' kW']);
+    display(['Electrical Power Output    = ',num2str(P_electric), ' kW']);
+    display(['Energy Balance             = ',num2str(E_electric), ' kWh']);
+ % display(['Heat Extracted             = ',num2str(Q_in), ' J']);
+    % display(['Power Produced by Turbine  = ',num2str(W_turbine) ,' J'       ]);
+    % display(['Electrical Power Output    = ',num2str(W_electrical)                     ]);
+    % display(['Overall Efficiency         = ',num2str(overall_efficiency * 100),' %' ]);
+    % display(['Mass Balance               = ',num2str(mass_flow_rate) ,' Kg/s'  ]);
+    % display(['Energy Balance             = ',num2str(Q_in - W_electrical),' J']);
 
     disp('-------------- Economic Analysis -----------------');
+    display(['discountRate               = ',num2str(discountRate)  ]);
+    display(['Investment                 = ',num2str(InvestasiAwal)  ]);
+    display(['Project life               = ',num2str(length(cashFlows)), ' years'  ]);
+    display(['Benefit                    = ',num2str(Benefit),   ]);
     display(['NPV                        = ',num2str(Net)  ]);
     display(['IRR                        = ',num2str(internal)   ]);
     display(['PIR                        = ',num2str(PIR)  ]);
